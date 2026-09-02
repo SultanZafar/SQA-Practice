@@ -26,12 +26,20 @@ jobs:
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
-      # Step 1: Flask / API Server ko background mein start karein
+      # Database Initialize & App Start
       - name: Start API Server
         run: |
-          python app.py &
+          python -c "import app; app.init_db()" || true
+          python app.py > app.log 2>&1 &
           sleep 5
 
-      # Step 2: Automation Tests execute karein
+      # Run Tests
       - name: Run All Automated Tests
         run: pytest
+
+      # Fail hone par App Logs print honge
+      - name: Print Server Error Logs if Failed
+        if: failure()
+        run: |
+          echo "=== SERVER LOGS ==="
+          cat app.log
