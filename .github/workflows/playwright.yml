@@ -20,24 +20,35 @@ jobs:
       - name: Install All Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest playwright pytest-playwright flask
+          pip install pytest playwright pytest-playwright flask requests
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
-      # Database initialize karein aur Flask ko 127.0.0.1 + 0.0.0.0 dono par bind karein
-      - name: Start API Server
+      # Database initialize karke Server ko background mein start karna
+      - name: Start API Server & Wait for Health Check
         run: |
-          python -c "import app; app.init_db()" || true
           python app.py > flask.log 2>&1 &
-          sleep 5
+          
+          # Health check endpoint (/api/health) ready hone ka wait karna
+          echo "Waiting for Flask server to respond..."
+          for i in {1..20}; do
+            if curl -s http://127.0.0.1:5000/api/health | grep -q "ok"; then
+              echo "Server is live and ready!"
+              break
+            fi
+            echo "Waiting... ($i)"
+            sleep 2
+          done
 
-      # Run Tests
+      # Tests execute karna
       - name: Run All Automated Tests
         run: pytest
 
-      # Debug Logs
-      - name: Print Flask Logs if Failed
+      # Fail hone par Server Logs dikhana
+      - name: Print Server Error Logs if Failed
         if: failure()
-        run: cat flask.log
+        run: |
+          echo "=== FLASK LOGS ==="
+          cat flask.log
