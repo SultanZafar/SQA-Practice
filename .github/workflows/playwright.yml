@@ -26,29 +26,9 @@ jobs:
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
-      # Database initialize karke Server ko background mein start karna
-      - name: Start API Server & Wait for Health Check
+      # Flask App start + Direct Pytest Run
+      - name: Run App & Tests
         run: |
-          python app.py > flask.log 2>&1 &
-          
-          # Health check endpoint (/api/health) ready hone ka wait karna
-          echo "Waiting for Flask server to respond..."
-          for i in {1..20}; do
-            if curl -s http://127.0.0.1:5000/api/health | grep -q "ok"; then
-              echo "Server is live and ready!"
-              break
-            fi
-            echo "Waiting... ($i)"
-            sleep 2
-          done
-
-      # Tests execute karna
-      - name: Run All Automated Tests
-        run: pytest
-
-      # Fail hone par Server Logs dikhana
-      - name: Print Server Error Logs if Failed
-        if: failure()
-        run: |
-          echo "=== FLASK LOGS ==="
-          cat flask.log
+          python app.py &
+          npx wait-on http://127.0.0.1:5000/api/health --timeout 15000
+          pytest
