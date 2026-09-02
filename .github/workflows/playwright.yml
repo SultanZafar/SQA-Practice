@@ -2,7 +2,7 @@ name: Playwright Automation Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   test:
@@ -17,20 +17,21 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Dependencies
+      - name: Install All Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest playwright pytest-playwright
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
-      # Step 1: Backend API Server ko background mein run karein
+      # Step 1: Flask / API Server ko background mein start karein
       - name: Start API Server
         run: |
           python app.py &
           sleep 5
 
-      # Step 2: Automation tests run karein
+      # Step 2: Automation Tests execute karein
       - name: Run All Automated Tests
         run: pytest
