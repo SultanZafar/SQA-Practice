@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -25,5 +25,12 @@ jobs:
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
+      # Step 1: Backend API Server ko background mein run karein
+      - name: Start API Server
+        run: |
+          python app.py &
+          sleep 5
+
+      # Step 2: Automation tests run karein
       - name: Run All Automated Tests
         run: pytest
