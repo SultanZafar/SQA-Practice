@@ -26,18 +26,18 @@ jobs:
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
-      # Flask app ko 0.0.0.0 par bind karke start karein
+      # Database initialize karein aur Flask ko 127.0.0.1 + 0.0.0.0 dono par bind karein
       - name: Start API Server
         run: |
           python -c "import app; app.init_db()" || true
-          FLASK_APP=app.py flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
+          python app.py > flask.log 2>&1 &
           sleep 5
 
-      # Run Tests using 127.0.0.1
+      # Run Tests
       - name: Run All Automated Tests
         run: pytest
 
-      # Fail hone par Flask Output Dikhayein
+      # Debug Logs
       - name: Print Flask Logs if Failed
         if: failure()
         run: cat flask.log
