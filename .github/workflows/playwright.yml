@@ -20,26 +20,24 @@ jobs:
       - name: Install All Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest playwright pytest-playwright
+          pip install pytest playwright pytest-playwright flask
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Ensure Playwright Browsers are Installed
         run: playwright install --with-deps
 
-      # Database Initialize & App Start
+      # Flask app ko 0.0.0.0 par bind karke start karein
       - name: Start API Server
         run: |
           python -c "import app; app.init_db()" || true
-          python app.py > app.log 2>&1 &
+          FLASK_APP=app.py flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
           sleep 5
 
-      # Run Tests
+      # Run Tests using 127.0.0.1
       - name: Run All Automated Tests
         run: pytest
 
-      # Fail hone par App Logs print honge
-      - name: Print Server Error Logs if Failed
+      # Fail hone par Flask Output Dikhayein
+      - name: Print Flask Logs if Failed
         if: failure()
-        run: |
-          echo "=== SERVER LOGS ==="
-          cat app.log
+        run: cat flask.log
