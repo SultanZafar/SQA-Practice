@@ -13,13 +13,13 @@ def test_health_check(playwright):
     api_context.dispose
 
 def test_get_all_tasks(playwright):
-    api_context = playwright.request.new_context(base_url="http://localhost:5000")
+    api_context = playwright.request.new_context(base_url="http://127.0.0.1:5000")
     response = api_context.get("/api/tasks")
     assert response.status == 200
     api_context.dispose()
 
 def test_create_task_via_api(playwright):
-    api_context = playwright.request.new_context(base_url="http://localhost:5000")
+    api_context = playwright.request.new_context(base_url="http://127.0.0.1:5000")
     random_id = random.randint(1000, 9999)
 
     response = api_context.post("/api/tasks", data={
@@ -34,7 +34,7 @@ def test_create_task_via_api(playwright):
     api_context.dispose()
 
 def test_update_task_via_api(playwright):
-    api_context = playwright.request.new_context(base_url="http://localhost:5000")
+    api_context = playwright.request.new_context(base_url="http://127.0.0.1:5000")
 
     create_response = api_context.post("/api/tasks", data={
         "title": "Task to update",
@@ -52,7 +52,7 @@ def test_update_task_via_api(playwright):
 
 
 def test_delete_task_via_api(playwright):
-    api_context = playwright.request.new_context(base_url="http://localhost:5000")
+    api_context = playwright.request.new_context(base_url="http://127.0.0.1:5000")
 
     create_response = api_context.post("/api/tasks", data={
         "title": "Task to delete",
@@ -69,7 +69,7 @@ def test_delete_task_via_api(playwright):
 
 
 def test_create_task_empty_title_via_api(playwright):
-    api_context = playwright.request.new_context(base_url="http://localhost:5000")
+    api_context = playwright.request.new_context(base_url="http://127.0.0.1:5000")
 
     response = api_context.post("/api/tasks", data={
         "title": "",
